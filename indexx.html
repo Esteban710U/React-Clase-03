@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clase 6 · TailwindCSS — Agenda ADSO v4</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<style>
+  :root{
+    --bg:#0B1416; --bg-panel:#101C1F; --bg-panel-2:#132226;
+    --text:#E7F3F3; --text-muted:#8FA6A8;
+    --cyan:#22D3EE; --cyan-deep:#0891B2;
+    --amber:#FBBF24; --purple:#A855F7;
+    --code-bg:#08100F; --border:#1E3236;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0; background:var(--bg); color:var(--text); font-family:'Inter',sans-serif; line-height:1.6;}
+  h1,h2,h3{font-family:'Space Grotesk',sans-serif; margin:0;}
+  code, pre, .mono{font-family:'JetBrains Mono',monospace;}
+
+  .shell{display:grid; grid-template-columns:240px 1fr; max-width:1200px; margin:0 auto;}
+  @media (max-width:880px){.shell{grid-template-columns:1fr;} .sidenav{display:none;}}
+  .sidenav{position:sticky; top:0; align-self:start; height:100vh; padding:30px 16px; border-right:1px solid var(--border); overflow-y:auto;}
+  .sidenav .brand{font-weight:700; font-size:0.93rem; display:flex; align-items:center; gap:8px; margin-bottom:6px;}
+  .sidenav .brand .dot{width:10px;height:10px;border-radius:50%; background:var(--cyan); box-shadow:0 0 10px var(--cyan);}
+  .sidenav .brand-sub{font-size:0.72rem; color:var(--text-muted); margin-bottom:24px; padding-left:18px;}
+  .sidenav nav a{display:block; color:var(--text-muted); text-decoration:none; font-size:0.8rem; padding:6px 10px; border-radius:6px; margin-bottom:1px; border-left:2px solid transparent;}
+  .sidenav nav a:hover{color:var(--text); background:var(--bg-panel);}
+  .sidenav nav a.active{color:var(--cyan); border-left:2px solid var(--cyan); background:var(--bg-panel);}
+
+  main{padding:0 40px 100px;}
+  @media (max-width:880px){main{padding:0 20px 80px;}}
+  section{padding-top:58px; scroll-margin-top:16px;}
+  .eyebrow{text-transform:uppercase; letter-spacing:0.13em; font-size:0.68rem; color:var(--purple); font-weight:600; margin-bottom:10px;}
+  section h2{font-size:1.45rem; margin-bottom:12px;}
+  section > p.lead{color:var(--text-muted); max-width:660px; margin-bottom:20px;}
+
+  .hero{padding:60px 40px 30px;}
+  .hero .eyebrow{color:var(--cyan);}
+  .hero h1{font-size:2.2rem; line-height:1.16; max-width:760px;}
+  .hero h1 em{font-style:normal; color:var(--cyan);}
+  .hero p.sub{color:var(--text-muted); max-width:620px; margin-top:14px; font-size:1rem;}
+  .hero-meta{display:flex; gap:10px; flex-wrap:wrap; margin-top:20px;}
+  .pill{font-size:0.7rem; padding:5px 11px; border-radius:20px; background:var(--bg-panel); border:1px solid var(--border); color:var(--text-muted); font-family:'JetBrains Mono',monospace;}
+
+  .panel{background:var(--bg-panel); border:1px solid var(--border); border-radius:12px; overflow:hidden; margin-bottom:16px; break-inside:avoid;}
+  .panel-head{display:flex; align-items:center; gap:8px; padding:9px 16px; border-bottom:1px solid var(--border); background:var(--bg-panel-2); font-size:0.73rem; color:var(--text-muted);}
+  .panel-head .lights{display:flex; gap:5px;}
+  .panel-head .lights span{width:8px;height:8px;border-radius:50%; background:#1c3438;}
+  .panel-body{padding:20px;}
+  .panel-body.demo{display:flex; align-items:center; gap:16px; flex-wrap:wrap;}
+  .badge{font-size:0.65rem; padding:3px 9px; border-radius:20px; background:rgba(34,211,238,0.14); color:var(--cyan); font-family:'JetBrains Mono',monospace; margin-left:8px;}
+
+  pre.code{margin:0; padding:16px 20px; background:var(--code-bg); overflow-x:auto; font-size:0.8rem; line-height:1.7; color:#d3ece9;}
+  .code .kw{color:#f472b6;} .code .fn{color:#7dd3fc;} .code .str{color:var(--amber);}
+  .code .tag{color:#67e8f9;} .code .attr{color:#5eead4;} .code .cm{color:#4f6b6d; font-style:italic;} .code .cls{color:#c4b5fd;}
+
+  .code-explain{display:grid; grid-template-columns:1.15fr 1fr; gap:0;}
+  @media (max-width:760px){.code-explain{grid-template-columns:1fr;}}
+  .explain-side{padding:20px; border-left:1px solid var(--border); background:var(--bg-panel-2);}
+  @media (max-width:760px){.explain-side{border-left:none; border-top:1px solid var(--border);}}
+  .explain-side .et{font-weight:600; font-size:0.83rem; color:var(--cyan); margin-bottom:3px; font-family:'JetBrains Mono',monospace;}
+  .explain-side .ed{font-size:0.82rem; color:var(--text-muted); margin-bottom:14px;}
+  .explain-side .ed:last-child{margin-bottom:0;}
+
+  .two-col{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  @media (max-width:760px){.two-col{grid-template-columns:1fr;}}
+
+  .steps{list-style:none; padding:0; margin:0; counter-reset:step;}
+  .steps li{counter-increment:step; display:flex; gap:14px; padding:12px 0; border-bottom:1px solid var(--border);}
+  .steps li:last-child{border-bottom:none;}
+  .steps li::before{content:counter(step); width:26px; height:26px; border-radius:50%; background:var(--bg-panel-2); border:1px solid var(--border); color:var(--cyan); font-family:'JetBrains Mono',monospace; font-size:0.8rem; display:flex; align-items:center; justify-content:center; flex-shrink:0;}
+  .steps .st-title{font-weight:600; font-size:0.88rem; font-family:'JetBrains Mono',monospace;}
+  .steps .st-desc{font-size:0.82rem; color:var(--text-muted); margin-top:2px;}
+
+  .checklist{list-style:none; padding:0; margin:0;}
+  .checklist li{display:flex; align-items:flex-start; gap:10px; padding:9px 0; border-bottom:1px solid var(--border); font-size:0.87rem; color:var(--text-muted); cursor:pointer;}
+  .checklist li:last-child{border-bottom:none;}
+  .checklist .box{width:17px; height:17px; border-radius:5px; border:1.5px solid var(--border); flex-shrink:0; margin-top:1px; display:flex; align-items:center; justify-content:center; font-size:0.66rem; color:#08100f;}
+  .checklist .box.on{background:var(--cyan); border-color:var(--cyan);}
+  .checklist li.on .txt{color:var(--text); text-decoration:line-through; text-decoration-color:var(--border);}
+
+  .ctable{width:100%; border-collapse:collapse; font-size:0.83rem;}
+  .ctable th, .ctable td{border:1px solid var(--border); padding:9px 12px; text-align:left; vertical-align:top;}
+  .ctable th{background:var(--bg-panel-2); color:var(--cyan); font-family:'JetBrains Mono',monospace; font-weight:600; font-size:0.75rem;}
+  .ctable td{color:var(--text-muted);}
+
+  .note{border:1px solid var(--border); background:var(--bg-panel-2); border-radius:10px; padding:14px 16px; font-size:0.84rem; color:var(--text-muted); margin-top:8px;}
+  .note strong{color:var(--text);}
+
+  .chip-row{display:flex; gap:8px; flex-wrap:wrap;}
+  .chip{font-family:'JetBrains Mono',monospace; font-size:0.74rem; padding:6px 12px; border-radius:20px; border:1px solid var(--border); background:var(--code-bg); color:var(--text-muted); cursor:pointer;}
+  .chip:hover{border-color:var(--cyan);}
+  .chip.active{background:rgba(34,211,238,0.14); border-color:var(--cyan); color:var(--cyan);}
+
+  .pdf-btn{
+    position:fixed; top:18px; right:18px; z-index:200;
+    display:flex; align-items:center; gap:8px;
+    background:var(--cyan); color:#052a30;
+    border:none; font-family:'Space Grotesk',sans-serif; font-weight:600;
+    padding:11px 18px; border-radius:30px; cursor:pointer;
+    font-size:0.84rem; box-shadow:0 4px 18px rgba(34,211,238,0.3);
+  }
+  .pdf-btn:hover{background:#67e2f5;}
+  .pdf-btn:active{transform:scale(0.97);}
+  .pdf-btn:disabled{opacity:0.6; cursor:wait;}
+  .pdf-btn svg{width:15px; height:15px; flex-shrink:0;}
+  @media (max-width:600px){
+    .pdf-btn{ top:auto; bottom:18px; right:18px; padding:12px; border-radius:50%; }
+    .pdf-btn .pdf-label{display:none;}
+  }
+
+  /* ------- Mini subconjunto de utilidades Tailwind, con los MISMOS nombres
+     que usa el proyecto real, para que la demo se vea exactamente igual
+     sin depender de un CDN externo distinto de cdnjs. ------- */
+  .tw{ font-family: Inter, system-ui, Arial; }
+  .tw .rounded-lg{border-radius:0.5rem;} .tw .rounded-md{border-radius:0.375rem;} .tw .rounded-full{border-radius:9999px;}
+  .tw .shadow-sm{box-shadow:0 1px 2px 0 rgba(0,0,0,.06);} .tw .shadow-md{box-shadow:0 4px 10px rgba(0,0,0,.12);}
+  .tw .bg-white{background:#fff;} .tw .bg-gray-50{background:#f9fafb;} .tw .bg-gray-100{background:#f3f4f6;}
+  .tw .bg-purple-600{background:#9333ea;} .tw .hover\:bg-purple-700:hover{background:#7e22ce;}
+  .tw .bg-red-500{background:#ef4444;} .tw .hover\:bg-red-600:hover{background:#dc2626;}
+  .tw .text-white{color:#fff;} .tw .text-gray-600{color:#4b5563;} .tw .text-gray-500{color:#6b7280;} .tw .text-gray-800{color:#1f2937;}
+  .tw .text-sm{font-size:.875rem;} .tw .text-xs{font-size:.75rem;} .tw .font-semibold{font-weight:600;} .tw .font-bold{font-weight:700;}
+  .tw .p-4{padding:1rem;} .tw .p-5{padding:1.25rem;} .tw .px-4{padding-left:1rem;padding-right:1rem;} .tw .py-2\.5{padding-top:.625rem;padding-bottom:.625rem;} .tw .py-2{padding-top:.5rem;padding-bottom:.5rem;}
+  .tw .space-y-4>*+*{margin-top:1rem;} .tw .space-y-1>*+*{margin-top:.25rem;}
+  .tw .grid{display:grid;} .tw .grid-cols-1{grid-template-columns:repeat(1,minmax(0,1fr));}
+  .tw .gap-3{gap:.75rem;} .tw .gap-4{gap:1rem;}
+  .tw .border{border-width:1px; border-style:solid;} .tw .border-gray-200{border-color:#e5e7eb;}
+  .tw .w-full{width:100%;} .tw .max-w-md{max-width:28rem;} .tw .mx-auto{margin-left:auto;margin-right:auto;}
+  .tw .flex{display:flex;} .tw .items-center{align-items:center;} .tw .justify-between{justify-content:space-between;}
+  .tw .transition{transition:all .2s ease;}
+  .tw .outline-none{outline:none;}
+  .tw .ring-2{box-shadow:0 0 0 2px var(--tw-ring-color, rgba(168,85,247,.5));}
+  .tw .focus\:ring-purple-500:focus{--tw-ring-color:#a855f7; box-shadow:0 0 0 2px #a855f7; border-color:#a855f7;}
+  .tw input.border{outline:none;}
+  @media (min-width:640px){ .tw .sm\:grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr));} }
+
+  footer{text-align:center; padding:50px 20px; color:var(--text-muted); font-size:0.8rem; border-top:1px solid var(--border);}
+  ::-webkit-scrollbar{width:10px; height:10px;}
+  ::-webkit-scrollbar-thumb{background:var(--border); border-radius:10px;}
+</style>
+</head>
+<body>
+
+<button id="pdf-btn" class="pdf-btn" onclick="downloadPDF()">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+  <span class="pdf-label" id="pdf-btn-label">Descargar todo en PDF</span>
+</button>
+
+<div class="shell">
+  <aside class="sidenav">
+    <div class="brand"><span class="dot"></span> Clase 6 · ADSO</div>
+    <div class="brand-sub">TailwindCSS · Agenda ADSO v4</div>
+    <nav id="sidenav-links">
+      <a href="#intro">Introducción</a>
+      <a href="#concepto">Utility-first vs CSS</a>
+      <a href="#instalacion">Instalación</a>
+      <a href="#config">Archivos de configuración</a>
+      <a href="#formulario">FormularioContacto.jsx</a>
+      <a href="#tarjeta">ContactoCard.jsx</a>
+      <a href="#playground">Playground de utilidades</a>
+      <a href="#demo">Agenda ADSO v4 en vivo</a>
+      <a href="#extra">Actividad complementaria</a>
+      <a href="#evaluacion">Evaluación y entrega</a>
+    </nav>
+  </aside>
+
+  <main id="pdf-content">
+    <div class="hero" id="intro">
+      <div class="eyebrow">SENA CTMA · ADSO — Desarrollo Web ReactJS</div>
+      <h1>Diseño moderno con <em>TailwindCSS</em> — Agenda ADSO v4</h1>
+      <p class="sub">Integramos TailwindCSS al proyecto para aplicar diseño moderno y responsivo con clases utilitarias, sin depender de hojas de estilo extensas como en v3.</p>
+      <div class="hero-meta">
+        <span class="pill">Instructor: Cristian Acevedo</span>
+        <span class="pill">Proyecto: Agenda ADSO (ABP 2025)</span>
+        <span class="pill">Competencia 220501098</span>
+      </div>
+    </div>
+
+    <section>
+      <div class="eyebrow">00</div>
+      <h2>Propósito y conocimientos previos</h2>
+      <p class="lead">Al finalizar, podrás instalar, configurar y aplicar utilidades de TailwindCSS para mejorar formularios y componentes, sin alterar la lógica que ya funciona (props, estado y persistencia en <code>localStorage</code>).</p>
+      <div class="panel">
+        <div class="panel-head"><div class="lights"><span></span><span></span><span></span></div> Necesitas venir con esto claro</div>
+        <div class="panel-body">
+          <ul style="margin:0; padding-left:18px; color:var(--text-muted); font-size:0.87rem; line-height:2;">
+            <li>Fundamentos de React: componentes, props y estado.</li>
+            <li>Persistencia en <code>localStorage</code> (Clase 5).</li>
+            <li>Manejo básico de npm y estructura de carpetas en proyectos con Vite.</li>
+            <li>Uso de Git y VS Code.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="concepto">
+      <div class="eyebrow">01</div>
+      <h2>Utility-first: Tailwind vs CSS tradicional</h2>
+      <p class="lead">En CSS tradicional inventas un nombre de clase y escribes sus reglas en otro archivo. En Tailwind compones el estilo directamente en el HTML/JSX combinando clases pequeñas y ya definidas — "utilidades" — una por cada propiedad.</p>
+      <div class="two-col">
+        <div class="panel">
+          <div class="panel-head"><div class="lights"><span></span><span></span><span></span></div> CSS tradicional (como en v3)</div>
+          <pre class="code"><span class="cm">/* App.css */</span>
+.tarjeta-contacto {
+  background: #fff;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  padding: 1rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,.08);
+}
+
+<span class="cm">// Contacto.jsx</span>
+&lt;<span class="tag">div</span> <span class="attr">className</span>=<span class="str">"tarjeta-contacto"</span>&gt;...&lt;/<span class="tag">div</span>&gt;</pre>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><div class="lights"><span></span><span></span><span></span></div> Utility-first (Tailwind)</div>
+          <pre class="code"><span class="cm">// Sin archivo CSS aparte:</span>
+&lt;<span class="tag">div</span> <span class="attr">className</span>=<span class="str">"bg-white border border-gray-200
+  rounded-lg p-4 shadow-sm"</span>&gt;
+  ...
+&lt;/<span class="tag">div</span>&gt;</pre>
+        </div>
+      </div>
+      <p style="font-size:0.85rem; color:var(--text-muted);">El resultado visual es idéntico — la diferencia es dónde vive el estilo. Con utilidades, el diseño queda a la vista junto a la estructura, y dejas de inventar nombres de clases para cada cosa nueva.</p>
+    </section>
+
+    <section id="instalacion">
+      <div class="eyebrow">02</div>
+      <h2>Instalación estable (v3.4) con Vite</h2>
+      <p class="lead">Usamos específicamente Tailwind 3.4 — no la v4 — para mantener la configuración clásica con <code>tailwind.config.js</code> que se usa en el curso.</p>
+      <div class="panel">
+        <div class="panel-head"><div class="lights"><span></span><span></span><span></span></div> Terminal</div>
+        <div class="panel-body">
+          <ol class="steps">
+            <li><div><div class="st-title">npm remove tailwindcss @tailwindcss/postcss</div><div class="st-desc">Quitamos cualquier instalación previa o de la v4, para partir de cero.</div></div></li>
+            <li><div><div class="st-title">npm i -D tailwindcss@3.4.13 postcss@8 autoprefixer@10</div><div class="st-desc">Instalamos la versión estable 3.4 junto con PostCSS y Autoprefixer, como dependencias de desarrollo.</div></div></li>
+            <li><div><div class="st-title">npx tailwindcss init -p</div><div class="st-desc">Genera <code>tailwind.config.js</code> y <code>postcss.config.js</code> automáticamente (la bandera <code>-p</code> agrega también el de PostCSS).</div></div></li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <section id="config">
+      <div class="eyebrow">03</div>
+      <h2>Archivos de configuración</h2>
+      <p class="lead">Cuatro archivos conectan Tailwind con el proyecto: le decimos dónde buscar clases, cómo procesarlas, y las importamos una sola vez.</p>
+
+      <div class="panel">
+        <div class="panel-head"><div class="lights"><span></span><span></span><span></span></div> tailwind.config.js</div>
+        <div class="code-explain">
+          <pre class="code"><span class="cm">/** @type {import('tailwindcss').Config} */</span>
+<span class="kw">export</span> <span class="kw">default</span> {
+  content: [
+    <span class="str">"./index.html"</span>,
+    <span class="str">"./src/**/*.{js,ts,jsx,tsx}"</span>,
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+};</pre>
+          <div class="explain-side">
+            <div class="et">content: [ ... ]</div>
+            <div class="ed">Le dice a Tailwind <strong>dónde buscar</strong> las clases que realmente usas, para generar solo el CSS necesario y no todo el framework completo.</div>
+            <div class="et">theme.extend</div>
+            <div class="ed">Aquí se agregarían colores, tipografías o espaciados personalizados sin sobrescribir los valores por defecto de Tailwind.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><div class="lights"><span></span><span></span><span></span></div> postcss.config.js</div>
+        <div class="code-explain">
+          <pre class="code"><span class="kw">export</span> <span class="kw">default</span> {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+};</pre>
+          <div class="explain-side">
+            <div class="et">tailwindcss: {}</div>
+            <div class="ed">PostCSS ejecuta Tailwind como un plugin: transforma tus clases utilitarias en CSS real durante el build.</div>
+            <div class="et">autoprefixer: {}</div>
+            <div class="ed">Agrega automáticamente prefijos de navegador (<code>-webkit-</code>, etc.) cuando hacen falta, sin que tengas que escribirlos a mano.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="panel">
+          <div class="panel-head"><div class="lights"><span></span><span></span><span></span></div> src/index.css</div>
+          <pre class="code">@tailwind base;
+@tailwind components;
+@tailwind utilities;</pre>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><div class="lights"><span></span><span></span><span></span></div> src/main.jsx</div>
+          <pre class="code"><span class="kw">import</span> React <span class="kw">from</span> <span class="str">"react"</span>;
+<span class="kw">import</span> ReactDOM <span class="kw">from</span> <span class="str">"react-dom/client"</span>;
+<span class="kw">import</span> App <span class="kw">from</span> <span class="str">"./App"</span>;
+<span class="kw">import</span> <span class="str">"./index.css"</span>; <span class="cm">// una sola vez, aquí</span>
+
+ReactDOM.createRoot(document.getElementById(<span class="str">"root"</span>))
+  .render(&lt;<span class="tag">App</span> /&gt;);</pre>
+        </div>
+      </div>
+      <p style="font-size:0.85rem; color:var(--text-muted);">Las tres directivas <code>@tailwind</code> se importan <strong>una sola vez</strong>, en <code>main.jsx</code> — nunca en cada componente.</p>
+    </section>
+
+    <section id="formulario">
+      <div class="eyebrow">04</div>
+      <h2>Rediseño de FormularioContacto.jsx</h2>
+      <p class="lead">La lógica (estado, validación, <code>onSubmit</code>) no cambia respecto a la v3 — solo reemplazamos las clases CSS propias por utilidades de Tailwind.</p>
+      <div class="panel">
+        <div class="panel-head"><div class="lights"><span></span><span></span><span></span></div> src/components/FormularioContacto.jsx</div>
+        <div class="code-explain">
+          <pre class="code">  <span class="kw">return</span> (
+    &lt;<span class="tag">form</span>
+      <span class="attr">onSubmit</span>={onSubmit}
+      <span class="attr">className</span>=<span class="str">"grid grid-cols-1 sm:grid-cols-2 gap-3
+        bg-white border border-gray-200 rounded-lg
+        shadow-sm p-5"</span>
+    &gt;
+      &lt;<span class="tag">div</span> <span class="attr">className</span>=<span class="str">"space-y-1"</span>&gt;
+        &lt;<span class="tag">label</span> <span class="attr">className</span>=<span class="str">"text-sm font-semibold text-gray-700"</span>&gt;
+          Nombre *
+        &lt;/<span class="tag">label</span>&gt;
+        &lt;<span class="tag">input</span>
+          <span class="attr">name</span>=<span class="str">"nombre"</span> <span class="attr">value</span>={form.nombre} <span class="attr">onChange</span>={onChange}
+          <span class="attr">className</span>=<span class="str">"w-full border border-gray-300 rounded-md
+            px-4 py-2 outline-none focus:ring-2
+            focus:ring-purple-500"</span>
+        /&gt;
+      &lt;/<span class="tag">div</span>&gt;
+
+      &lt;<span class="tag">button</span>
+        <span class="attr">className</span>=<span class="str">"sm:col-span-2 bg-purple-600
+          hover:bg-purple-700 text-white font-semibold
+          rounded-lg py-2.5 transition"</span>
+      &gt;
+        Agregar contacto
+      &lt;/<span class="tag">button</span>&gt;
+    &lt;/<span class="tag">form</span>&gt;
+  );</pre>
+          <div class="explain-side">
+            <div class="et">grid grid-cols-1 sm:grid-cols-2</div>
+            <div class="ed">Reemplaza el <code>.form-contacto</code> de v3: una columna en móvil, y a partir del breakpoint <code>sm</code> (640px), dos columnas — mismo comportamiento, sin escribir un <code>@media</code>.</div>
+            <div class="et">rounded-lg shadow-sm border-gray-200</div>
+            <div class="ed">Tres utilidades = bordes redondeados + sombra suave + borde gris claro, el mismo look que antes daban las variables <code>--radio</code>, <code>--shadow</code> y <code>--borde</code>.</div>
+            <div class="et">focus:ring-2 focus:ring-purple-500</div>
+            <div class="ed">Prefijo <code>focus:</code>: la utilidad solo aplica cuando el input tiene el foco — dibuja un anillo morado alrededor, dando feedback visual claro al escribir.</div>
+            <div class="et">sm:col-span-2</div>
+            <div class="ed">El botón ocupa las dos columnas del grid a partir de <code>sm</code>, igual que hacía <code>grid-column: 1 / -1</code> en el CSS de v3.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="tarjeta">
+      <div class="eyebrow">05</div>
+      <h2>Rediseño de ContactoCard.jsx</h2>
+      <p class="lead">Misma idea en la tarjeta: bordes, sombra y el botón "Eliminar" en rojo, ahora con <code>bg-red-500</code> y <code>hover:bg-red-600</code>.</p>
+      <div class="panel">
+        <div class="panel-head"><div class="lights"><span></span><span></span><span></span></div> src/components/ContactoCard.jsx</div>
+        <div class="code-explain">
+          <pre class="code">  <span class="kw">return</span> (
+    &lt;<span class="tag">article</span> <span class="attr">className</span>=<span class="str">"bg-white border border-gray-200
+      rounded-lg shadow-sm p-4 flex items-center
+      justify-between gap-4"</span>&gt;
+      &lt;<span class="tag">div</span>&gt;
+        &lt;<span class="tag">h3</span> <span class="attr">className</span>=<span class="str">"font-bold text-gray-800"</span>&gt;{nombre}&lt;/<span class="tag">h3</span>&gt;
+        &lt;<span class="tag">p</span> <span class="attr">className</span>=<span class="str">"text-sm text-gray-600"</span>&gt;📞 {telefono}&lt;/<span class="tag">p</span>&gt;
+        &lt;<span class="tag">p</span> <span class="attr">className</span>=<span class="str">"text-sm text-gray-600"</span>&gt;✉️ {correo}&lt;/<span class="tag">p</span>&gt;
+      &lt;/<span class="tag">div</span>&gt;
+      &lt;<span class="tag">button</span>
+        <span class="attr">onClick</span>={() =&gt; onEliminar(correo)}
+        <span class="attr">className</span>=<span class="str">"bg-red-500 hover:bg-red-600 text-white
+          text-xs font-semibold rounded-full px-4 py-2
+          transition"</span>
+      &gt;
+        Eliminar
+      &lt;/<span class="tag">button</span>&gt;
+    &lt;/<span class="tag">article</span>&gt;
+  );</pre>
+          <div class="explain-side">
+            <div class="et">flex items-center justify-between</div>
+            <div class="ed">La info del contacto queda a la izquierda y el botón "Eliminar" a la derecha, alineados verticalmente — tres utilidades de Flexbox en vez de CSS aparte.</div>
+            <div class="et">bg-red-500 → hover:bg-red-600</div>
+            <div class="ed">Tailwind numera cada color en una escala de 50 a 900. <code>red-500</code> es el rojo base; en <code>hover:</code> saltamos a <code>red-600</code>, un tono más oscuro, igual que hacía <code>.btn-eliminar:hover</code> en v3.</div>
+            <div class="et">rounded-full</div>
+            <div class="ed">Aquí usamos un radio total (píldora) en vez de <code>rounded-lg</code>, para diferenciar visualmente el botón de eliminar del resto de la tarjeta.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="playground">
+      <div class="eyebrow">06 · En vivo</div>
+      <h2>Playground de utilidades</h2>
+      <p class="lead">Cambia las clases de esta tarjeta en tiempo real y observa exactamente qué hace cada una — así se siente trabajar "utility-first".</p>
+      <div id="playground-demo" class="panel">
+        <div class="panel-head"><div class="lights"><span></span><span></span><span></span></div> Toca los chips para alternar clases</div>
+        <div class="panel-body"></div>
+      </div>
+    </section>
+
+    <section id="demo">
+      <div class="eyebrow">07 · En vivo</div>
+      <h2>Agenda ADSO v4 — con TailwindCSS</h2>
+      <p class="lead">La misma lógica de estado y <code>localStorage</code> de la Clase 5, ahora con la interfaz completamente rediseñada con utilidades.</p>
+      <div id="agenda-demo" class="panel">
+        <div class="panel-head"><div class="lights"><span></span><span></span><span></span></div> Agenda ADSO v4 <span class="badge">Tailwind utility-first</span></div>
+        <div class="panel-body"></div>
+      </div>
+      <div class="note">Nota: para esta vista previa reproducimos, con CSS propio, únicamente el subconjunto de utilidades de Tailwind usadas en el código de arriba (mismos nombres de clase, mismos valores) — en tu proyecto real esas clases las genera Tailwind automáticamente a partir de <code>tailwind.config.js</code>. La persistencia se simula en memoria por la misma razón que en la Clase 5.</div>
+    </section>
+
+    <section id="extra">
+      <div class="eyebrow">08 · Opcional</div>
+      <h2>Actividad complementaria: campo "empresa"</h2>
+      <p class="lead">Agrega un campo <code>empresa</code> al formulario y muéstralo en la tarjeta con <code>text-sm text-gray-600</code>, sin romper la persistencia. Actívalo en la demo de arriba con el interruptor:</p>
+      <div class="panel">
+        <div class="panel-head"><div class="lights"><span></span><span></span><span></span></div> Interruptor de la demo</div>
+        <div class="panel-body demo" id="extra-toggle-root"></div>
+      </div>
+    </section>
+
+    <section id="evaluacion">
+      <div class="eyebrow">09</div>
+      <h2>Entrega y criterios de evaluación</h2>
+      <p class="lead">Cuatro capturas a Classroom: formulario diligenciado, lista con 2+ contactos, recarga verificando persistencia, y el código de <code>App.jsx</code> mostrando el <code>useEffect</code>.</p>
+      <div class="panel">
+        <div class="panel-head"><div class="lights"><span></span><span></span><span></span></div> Checklist de entrega</div>
+        <div id="checklist-root" class="panel-body"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><div class="lights"><span></span><span></span><span></span></div> Criterios de evaluación</div>
+        <div class="panel-body" style="overflow-x:auto;">
+          <table class="ctable">
+            <tr><th>Criterio</th><th>Descripción</th></tr>
+            <tr><td>Configura correctamente TailwindCSS y PostCSS</td><td>Incluye los archivos y versiones correctas (3.4.13)</td></tr>
+            <tr><td>Aplica clases utilitarias con coherencia visual</td><td>Formulario y tarjetas con estilos modernos</td></tr>
+            <tr><td>Mantiene persistencia y funcionalidad</td><td>Los datos se guardan y eliminan correctamente</td></tr>
+            <tr><td>Organiza componentes y estructura modular</td><td>Código limpio, reutilizable y legible</td></tr>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <footer>Clase 6 — Diseño Moderno con TailwindCSS · Agenda ADSO v4 · Instructor Cristian Acevedo · SENA CTMA Regional Antioquia · ADSO, Desarrollo Web con ReactJS</footer>
+  </main>
+</div>
+
+<script type="text/babel" data-presets="react">
+const { useState } = React;
+
+/* ---------------- PLAYGROUND DE UTILIDADES ---------------- */
+function Playground(){
+  const [rounded, setRounded] = useState('rounded-lg');
+  const [shadow, setShadow] = useState('shadow-sm');
+  const [bg, setBg] = useState('bg-white');
+  const [padding, setPadding] = useState('p-5');
+
+  const roundedOpts = ['rounded-md','rounded-lg','rounded-full'];
+  const shadowOpts = ['shadow-sm','shadow-md'];
+  const bgOpts = ['bg-white','bg-gray-50','bg-gray-100'];
+  const padOpts = ['p-4','p-5'];
+
+  function ChipGroup({label, opts, value, setValue}){
+    return (
+      <div style={{marginBottom:12}}>
+        <div style={{fontSize:'0.72rem', color:'var(--text-muted)', marginBottom:6, textTransform:'uppercase', letterSpacing:'0.06em'}}>{label}</div>
+        <div className="chip-row">
+          {opts.map(o => (
+            <button key={o} className={"chip" + (value===o ? ' active' : '')} onClick={() => setValue(o)}>{o}</button>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  const classes = `tw ${bg} border border-gray-200 ${rounded} ${shadow} ${padding}`;
+
+  return (
+    <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:20}}>
+      <div>
+        <ChipGroup label="rounded-*" opts={roundedOpts} value={rounded} setValue={setRounded} />
+        <ChipGroup label="shadow-*" opts={shadowOpts} value={shadow} setValue={setShadow} />
+        <ChipGroup label="bg-*" opts={bgOpts} value={bg} setValue={setBg} />
+        <ChipGroup label="p-*" opts={padOpts} value={padding} setValue={setPadding} />
+      </div>
+      <div style={{display:'flex', alignItems:'center', justifyContent:'center'}}>
+        <div className={classes} style={{width:220}}>
+          <div className="font-bold text-gray-800">Carolina Pérez</div>
+          <div className="text-sm text-gray-600">📞 300 123 4567</div>
+        </div>
+      </div>
+      <div style={{gridColumn:'1 / -1', fontFamily:"'JetBrains Mono',monospace", fontSize:'0.78rem', color:'var(--cyan)', background:'var(--code-bg)', padding:'10px 14px', borderRadius:8, border:'1px solid var(--border)'}}>
+        className="{bg} border border-gray-200 {rounded} {shadow} {padding}"
+      </div>
+    </div>
+  );
+}
+ReactDOM.createRoot(document.querySelector('#playground-demo .panel-body')).render(<Playground/>);
+
+/* ---------------- AGENDA ADSO v4 (Tailwind) ---------------- */
+function ContactoCard({ nombre, telefono, correo, empresa, onEliminar, mostrarEmpresa }){
+  return (
+    <article className="tw bg-white border border-gray-200 rounded-lg shadow-sm p-4 flex items-center justify-between gap-4" style={{marginBottom:10}}>
+      <div>
+        <h3 className="font-bold text-gray-800" style={{margin:0}}>{nombre}</h3>
+        <p className="text-sm text-gray-600" style={{margin:'2px 0'}}>📞 {telefono}</p>
+        <p className="text-sm text-gray-600" style={{margin:'2px 0'}}>✉️ {correo}</p>
+        {mostrarEmpresa && empresa ? <p className="text-sm text-gray-600" style={{margin:'2px 0'}}>🏢 {empresa}</p> : null}
+      </div>
+      <button onClick={() => onEliminar(correo)} className="tw bg-red-500 hover:bg-red-600 text-white text-xs font-semibold rounded-full transition" style={{padding:'8px 16px', border:'none', cursor:'pointer'}}>
+        Eliminar
+      </button>
+    </article>
+  );
+}
+
+function FormularioContacto({ onAgregar, mostrarEmpresa }){
+  const base = { nombre:'', telefono:'', correo:'', empresa:'' };
+  const [form, setForm] = useState(base);
+  function onChange(e){
+    const { name, value } = e.target;
+    setForm(f => ({...f, [name]: value}));
+  }
+  function onSubmit(e){
+    e.preventDefault();
+    if(!form.nombre || !form.telefono || !form.correo) return;
+    onAgregar(form);
+    setForm(base);
+  }
+  const inputClass = "tw w-full border border-gray-300 rounded-md outline-none focus:ring-purple-500";
+  return (
+    <form onSubmit={onSubmit} className="tw grid grid-cols-1 sm:grid-cols-2 gap-3 bg-white border border-gray-200 rounded-lg shadow-sm p-5">
+      <div className="space-y-1">
+        <label className="text-sm font-semibold text-gray-600">Nombre *</label>
+        <input name="nombre" value={form.nombre} onChange={onChange} className={inputClass} style={{padding:'8px 12px'}} />
+      </div>
+      <div className="space-y-1">
+        <label className="text-sm font-semibold text-gray-600">Teléfono *</label>
+        <input name="telefono" value={form.telefono} onChange={onChange} className={inputClass} style={{padding:'8px 12px'}} />
+      </div>
+      <div className="space-y-1" style={{gridColumn: mostrarEmpresa ? 'auto' : '1 / -1'}}>
+        <label className="text-sm font-semibold text-gray-600">Correo *</label>
+        <input name="correo" value={form.correo} onChange={onChange} className={inputClass} style={{padding:'8px 12px'}} />
+      </div>
+      {mostrarEmpresa && (
+        <div className="space-y-1">
+          <label className="text-sm font-semibold text-gray-600">Empresa</label>
+          <input name="empresa" value={form.empresa} onChange={onChange} className={inputClass} style={{padding:'8px 12px'}} />
+        </div>
+      )}
+      <button type="submit" className="tw bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition" style={{gridColumn:'1 / -1', padding:'10px 0', border:'none', cursor:'pointer'}}>
+        Agregar contacto
+      </button>
+    </form>
+  );
+}
+
+let memoStorageV4 = JSON.stringify([
+  { nombre:'Ana Torres', telefono:'300 123 4567', correo:'ana.torres@sena.edu.co', empresa:'SENA CTMA' },
+  { nombre:'Cristian Acevedo', telefono:'300 765 4321', correo:'cristian@sena.edu.co', empresa:'SENA CTMA' },
+]);
+
+function AgendaADSOv4(){
+  const [mostrarEmpresa, setMostrarEmpresa] = useState(false);
+  const contactosGuardados = JSON.parse(memoStorageV4) || [];
+  const [contactos, setContactos] = useState(contactosGuardados);
+
+  React.useEffect(() => { memoStorageV4 = JSON.stringify(contactos); }, [contactos]);
+
+  function agregarContacto(nuevo){ setContactos(prev => [...prev, nuevo]); }
+  function eliminarContacto(correo){ setContactos(prev => prev.filter(c => c.correo !== correo)); }
+
+  return (
+    <div>
+      <div className="tw bg-gray-50" style={{borderRadius:10, padding:20}}>
+        <div style={{maxWidth:520, margin:'0 auto'}}>
+          <h1 className="tw font-bold" style={{textAlign:'center', color:'#9333ea', fontSize:'1.6rem', marginBottom:16}}>Agenda ADSO v4</h1>
+          <FormularioContacto onAgregar={agregarContacto} mostrarEmpresa={mostrarEmpresa} />
+          <div style={{marginTop:14}}>
+            {contactos.map(c => (
+              <ContactoCard key={c.correo} {...c} onEliminar={eliminarContacto} mostrarEmpresa={mostrarEmpresa} />
+            ))}
+            {contactos.length === 0 && <p style={{textAlign:'center', color:'#9ca3af', fontSize:13}}>Sin contactos guardados.</p>}
+          </div>
+        </div>
+      </div>
+      <div id="extra-toggle-mount"></div>
+    </div>
+  );
+}
+const agendaRoot = ReactDOM.createRoot(document.querySelector('#agenda-demo .panel-body'));
+agendaRoot.render(<AgendaADSOv4/>);
+
+/* ---------------- INTERRUPTOR CAMPO EMPRESA (actividad complementaria) ---------------- */
+function ExtraToggle(){
+  const [on, setOn] = useState(false);
+  React.useEffect(() => {
+    // vuelve a montar la agenda con el nuevo valor de mostrarEmpresa
+    agendaRoot.render(<AgendaADSOv4Wrapper mostrarEmpresa={on} />);
+  }, [on]);
+  return (
+    <>
+      <button className="chip" style={on ? {background:'rgba(34,211,238,0.14)', borderColor:'var(--cyan)', color:'var(--cyan)'} : {}} onClick={() => setOn(!on)}>
+        {on ? '✓ campo "empresa" activo' : 'activar campo "empresa"'}
+      </button>
+      <span style={{fontSize:'0.82rem', color:'var(--text-muted)'}}>Aplica <code>text-sm text-gray-600</code> al mostrarlo en la tarjeta.</span>
+    </>
+  );
+}
+// Wrapper que permite re-renderizar AgendaADSOv4 con un mostrarEmpresa inicial distinto
+function AgendaADSOv4Wrapper({ mostrarEmpresa: inicial }){
+  const [mostrarEmpresa, setMostrarEmpresa] = useState(inicial);
+  React.useEffect(() => setMostrarEmpresa(inicial), [inicial]);
+  const contactosGuardados = JSON.parse(memoStorageV4) || [];
+  const [contactos, setContactos] = useState(contactosGuardados);
+  React.useEffect(() => { memoStorageV4 = JSON.stringify(contactos); }, [contactos]);
+  function agregarContacto(nuevo){ setContactos(prev => [...prev, nuevo]); }
+  function eliminarContacto(correo){ setContactos(prev => prev.filter(c => c.correo !== correo)); }
+  return (
+    <div className="tw bg-gray-50" style={{borderRadius:10, padding:20}}>
+      <div style={{maxWidth:520, margin:'0 auto'}}>
+        <h1 className="tw font-bold" style={{textAlign:'center', color:'#9333ea', fontSize:'1.6rem', marginBottom:16}}>Agenda ADSO v4</h1>
+        <FormularioContacto onAgregar={agregarContacto} mostrarEmpresa={mostrarEmpresa} />
+        <div style={{marginTop:14}}>
+          {contactos.map(c => (
+            <ContactoCard key={c.correo} {...c} onEliminar={eliminarContacto} mostrarEmpresa={mostrarEmpresa} />
+          ))}
+          {contactos.length === 0 && <p style={{textAlign:'center', color:'#9ca3af', fontSize:13}}>Sin contactos guardados.</p>}
+        </div>
+      </div>
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById('extra-toggle-root')).render(<ExtraToggle/>);
+
+/* ---------------- CHECKLIST ---------------- */
+function Checklist(){
+  const [items, setItems] = useState([
+    'Captura: formulario con datos diligenciados',
+    'Captura: lista con 2 o más contactos',
+    'Captura: recarga del navegador verificando persistencia',
+    'Captura: código de App.jsx mostrando el useEffect',
+    'tailwind.config.js y postcss.config.js con las versiones correctas (3.4.13)',
+  ].map((t,i) => ({id:i, texto:t, done:false})));
+
+  function toggle(id){
+    setItems(items.map(it => it.id === id ? {...it, done: !it.done} : it));
+  }
+  const hechas = items.filter(i => i.done).length;
+
+  return (
+    <div>
+      <ul className="checklist">
+        {items.map(it => (
+          <li key={it.id} className={it.done ? 'on' : ''} onClick={() => toggle(it.id)}>
+            <span className={"box" + (it.done ? ' on' : '')}>{it.done ? '✓' : ''}</span>
+            <span className="txt">{it.texto}</span>
+          </li>
+        ))}
+      </ul>
+      <p style={{fontSize:'0.78rem', color:'var(--text-muted)', marginTop:12}}>{hechas} de {items.length} completados</p>
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById('checklist-root')).render(<Checklist/>);
+</script>
+
+<script>
+  const links = document.querySelectorAll('#sidenav-links a');
+  const sections = [...links].map(a => document.querySelector(a.getAttribute('href')));
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting){
+        const id = '#' + entry.target.id;
+        links.forEach(a => a.classList.toggle('active', a.getAttribute('href') === id));
+      }
+    });
+  }, {rootMargin: '-40% 0px -50% 0px'});
+  sections.forEach(s => s && io.observe(s));
+
+  function downloadPDF(){
+    const btn = document.getElementById('pdf-btn');
+    const label = document.getElementById('pdf-btn-label');
+    const content = document.getElementById('pdf-content');
+    const originalLabel = label.textContent;
+    btn.disabled = true;
+    label.textContent = 'Generando PDF…';
+
+    const opt = {
+      margin: [10, 10, 12, 10],
+      filename: 'clase6-tailwindcss-agenda-adso-v4.pdf',
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true, backgroundColor: '#0B1416' },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+      pagebreak: { mode: ['css', 'avoid-all'] }
+    };
+
+    html2pdf().set(opt).from(content).save().then(() => {
+      btn.disabled = false;
+      label.textContent = originalLabel;
+    }).catch(() => {
+      btn.disabled = false;
+      label.textContent = originalLabel;
+    });
+  }
+</script>
+</body>
+</html>
