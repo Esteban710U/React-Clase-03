@@ -72,7 +72,7 @@ export default function App() {
 
   return (
     <main className="app-container">
-      <Saludo nombre="Cristian Román" curso="React" />
+      <Saludo nombre="Esteban Guapacha" curso="React" />
 
       <div className="panel-layout">
         <FormularioContacto
