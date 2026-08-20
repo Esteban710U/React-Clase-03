@@ -1,0 +1,19 @@
+{
+  "contactos": [
+    {
+      "id": "1",
+      "nombre": "Carolina Pérez",
+      "telefono": "300 123 4567",
+      "correo": "carolina@sena.edu.co",
+      "etiqueta": "Compañera"
+    },
+    {
+      "nombre": "juan",
+      "correo": "2008esteban12@gmail.com",
+      "telefono": "3113235463",
+      "etiqueta": "juan",
+      "id": "xybpibCf_PY"
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
+}

@@ -3,23 +3,11 @@ import ContactoCard from "./components/ContactoCard.jsx";
 import FormularioContacto from "./components/FormularioContacto";
 import Saludo from "./components/Saludo";
 
-const contactosIniciales = [
-  {
-    id: 1,
-    nombre: "Esteban",
-    telefono: "311 323 5370",
-    correo: "esteban@sena.edu.co",
-    etiqueta: "Aprendiz",
-  },
-];
+// URL del "servidor" de json-server (levantado con: npm run server)
+const API_URL = "http://localhost:3001/contactos";
 
 export default function App() {
-  const [contactos, setContactos] = useState(() => {
-    return (
-      JSON.parse(localStorage.getItem("contactos") || "null") ||
-      contactosIniciales
-    );
-  });
+  const [contactos, setContactos] = useState([]);
 
   const [form, setForm] = useState({
     nombre: "",
@@ -29,17 +17,82 @@ export default function App() {
   });
 
   const [buscar, setBuscar] = useState("");
+  const [cargando, setCargando] = useState(true);
+  const [error, setError] = useState(null);
+  const [enviando, setEnviando] = useState(false);
 
+  // Trae los contactos desde json-server al montar el componente
   useEffect(() => {
-    localStorage.setItem("contactos", JSON.stringify(contactos));
-  }, [contactos]);
+    async function cargarContactos() {
+      try {
+        setCargando(true);
+        setError(null);
 
-  function guardarContacto(nuevo) {
-    setContactos([...contactos, { id: Date.now(), ...nuevo }]);
+        const respuesta = await fetch(API_URL);
+
+        if (!respuesta.ok) {
+          throw new Error("No se pudieron cargar los contactos.");
+        }
+
+        const datos = await respuesta.json();
+        setContactos(datos);
+      } catch (err) {
+        setError(
+          "No se pudo conectar con el servidor. Verifica que json-server esté corriendo (npm run server)."
+        );
+      } finally {
+        setCargando(false);
+      }
+    }
+
+    cargarContactos();
+  }, []);
+
+  // Crea un contacto nuevo en json-server (POST) y lo agrega al estado
+  async function guardarContacto(nuevo) {
+    try {
+      setEnviando(true);
+      setError(null);
+
+      const respuesta = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(nuevo),
+      });
+
+      if (!respuesta.ok) {
+        throw new Error("No se pudo guardar el contacto.");
+      }
+
+      const contactoCreado = await respuesta.json();
+      setContactos((prev) => [...prev, contactoCreado]);
+    } catch (err) {
+      setError("No se pudo guardar el contacto. Intenta de nuevo.");
+    } finally {
+      setEnviando(false);
+    }
   }
 
-  function borrarContacto(id) {
-    setContactos(contactos.filter((c) => c.id !== id));
+  // Elimina un contacto en json-server (DELETE) y lo quita del estado
+  async function borrarContacto(id) {
+    const contactosPrevios = contactos;
+
+    // Actualización optimista: lo quitamos de inmediato de la UI
+    setContactos((prev) => prev.filter((c) => c.id !== id));
+
+    try {
+      const respuesta = await fetch(`${API_URL}/${id}`, {
+        method: "DELETE",
+      });
+
+      if (!respuesta.ok) {
+        throw new Error("No se pudo eliminar el contacto.");
+      }
+    } catch (err) {
+      // Si falla, restauramos el contacto en la UI
+      setContactos(contactosPrevios);
+      setError("No se pudo eliminar el contacto. Intenta de nuevo.");
+    }
   }
 
   function cambiarTexto(evento) {
@@ -51,10 +104,15 @@ export default function App() {
     });
   }
 
-  function enviarFormulario(evento) {
+  async function enviarFormulario(evento) {
     evento.preventDefault();
 
-    guardarContacto(form);
+    if (!form.nombre.trim() || !form.telefono.trim()) {
+      setError("Nombre y teléfono son obligatorios.");
+      return;
+    }
+
+    await guardarContacto(form);
 
     setForm({
       nombre: "",
@@ -87,6 +145,7 @@ export default function App() {
               onChange={cambiarTexto}
               onSubmit={enviarFormulario}
               totalContactos={contactos.length}
+              enviando={enviando}
             />
 
           </div>
@@ -119,9 +178,25 @@ export default function App() {
 
               </div>
 
+              {error && (
+                <div className="mb-6 rounded-xl bg-red-50 border border-red-200 text-red-700 px-4 py-3">
+                  {error}
+                </div>
+              )}
+
               <div className="space-y-5">
 
-                {contactosFiltrados.length === 0 ? (
+                {cargando ? (
+
+                  <div className="text-center py-16">
+
+                    <p className="text-slate-500 text-lg">
+                      Cargando contactos...
+                    </p>
+
+                  </div>
+
+                ) : contactosFiltrados.length === 0 ? (
 
                   <div className="text-center py-16">
 

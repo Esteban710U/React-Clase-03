@@ -3,6 +3,7 @@ export default function FormularioContacto({
   onChange,
   onSubmit,
   totalContactos,
+  enviando,
 }) {
   return (
     <section className="bg-white rounded-3xl shadow-xl border border-slate-200 p-8 sticky top-8">
@@ -102,9 +103,10 @@ export default function FormularioContacto({
 
         <button
           type="submit"
-          className="w-full rounded-xl bg-indigo-600 py-3 text-lg font-semibold text-white transition duration-300 hover:bg-indigo-700 hover:shadow-lg"
+          disabled={enviando}
+          className="w-full rounded-xl bg-indigo-600 py-3 text-lg font-semibold text-white transition duration-300 hover:bg-indigo-700 hover:shadow-lg disabled:opacity-60 disabled:cursor-not-allowed"
         >
-          Agregar contacto
+          {enviando ? "Guardando..." : "Agregar contacto"}
         </button>
 
       </form>
