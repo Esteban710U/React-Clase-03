@@ -4,7 +4,20 @@ export default function FormularioContacto({
   onSubmit,
   totalContactos,
   enviando,
+  errores = {},
 }) {
+  // Devuelve las clases del input, cambiando el borde a rojo si el campo tiene error
+  function claseInput(campo) {
+    const base =
+      "w-full rounded-xl border bg-slate-50 px-4 py-3 outline-none transition focus:ring-2";
+
+    if (errores[campo]) {
+      return `${base} border-red-400 focus:border-red-500 focus:ring-red-200`;
+    }
+
+    return `${base} border-slate-300 focus:border-indigo-500 focus:ring-indigo-200`;
+  }
+
   return (
     <section className="bg-white rounded-3xl shadow-xl border border-slate-200 p-8 sticky top-8">
 
@@ -30,6 +43,7 @@ export default function FormularioContacto({
 
       <form
         onSubmit={onSubmit}
+        noValidate
         className="space-y-5"
       >
 
@@ -45,8 +59,15 @@ export default function FormularioContacto({
             placeholder="Ingrese el nombre"
             value={form.nombre}
             onChange={onChange}
-            className="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
+            aria-invalid={Boolean(errores.nombre)}
+            className={claseInput("nombre")}
           />
+
+          {errores.nombre && (
+            <p className="mt-1.5 text-sm text-red-600">
+              {errores.nombre}
+            </p>
+          )}
 
         </div>
 
@@ -62,8 +83,15 @@ export default function FormularioContacto({
             placeholder="Ingrese el teléfono"
             value={form.telefono}
             onChange={onChange}
-            className="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
+            aria-invalid={Boolean(errores.telefono)}
+            className={claseInput("telefono")}
           />
+
+          {errores.telefono && (
+            <p className="mt-1.5 text-sm text-red-600">
+              {errores.telefono}
+            </p>
+          )}
 
         </div>
 
@@ -79,8 +107,15 @@ export default function FormularioContacto({
             placeholder="correo@ejemplo.com"
             value={form.correo}
             onChange={onChange}
-            className="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
+            aria-invalid={Boolean(errores.correo)}
+            className={claseInput("correo")}
           />
+
+          {errores.correo && (
+            <p className="mt-1.5 text-sm text-red-600">
+              {errores.correo}
+            </p>
+          )}
 
         </div>
 
@@ -96,8 +131,15 @@ export default function FormularioContacto({
             placeholder="Trabajo, Familia, Amigos..."
             value={form.etiqueta}
             onChange={onChange}
-            className="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
+            aria-invalid={Boolean(errores.etiqueta)}
+            className={claseInput("etiqueta")}
           />
+
+          {errores.etiqueta && (
+            <p className="mt-1.5 text-sm text-red-600">
+              {errores.etiqueta}
+            </p>
+          )}
 
         </div>
 

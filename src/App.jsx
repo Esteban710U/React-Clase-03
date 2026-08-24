@@ -6,6 +6,49 @@ import Saludo from "./components/Saludo";
 // URL del "servidor" de json-server (levantado con: npm run server)
 const API_URL = "http://localhost:3001/contactos";
 
+// Formato de correo básico: algo@algo.algo (sin espacios)
+const REGEX_CORREO = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+// Teléfono: solo dígitos, espacios, guiones, paréntesis y +, con al menos 7 dígitos
+const REGEX_TELEFONO = /^[\d\s()+-]+$/;
+
+// Revisa cada campo del formulario y devuelve un objeto con los mensajes de error
+function validarFormulario(datos) {
+  const errores = {};
+
+  const nombre = datos.nombre.trim();
+  const telefono = datos.telefono.trim();
+  const correo = datos.correo.trim();
+
+  if (!nombre) {
+    errores.nombre = "El nombre es obligatorio.";
+  } else if (nombre.length < 3) {
+    errores.nombre = "El nombre debe tener al menos 3 caracteres.";
+  }
+
+  if (!telefono) {
+    errores.telefono = "El teléfono es obligatorio.";
+  } else if (!REGEX_TELEFONO.test(telefono)) {
+    errores.telefono = "El teléfono solo puede contener números, espacios, +, - y ().";
+  } else if (telefono.replace(/\D/g, "").length < 7) {
+    errores.telefono = "El teléfono debe tener al menos 7 dígitos.";
+  }
+
+  if (!correo) {
+    errores.correo = "El correo es obligatorio.";
+  } else if (!correo.includes("@")) {
+    errores.correo = "El correo debe contener un @.";
+  } else if (!REGEX_CORREO.test(correo)) {
+    errores.correo = "El correo no tiene un formato válido (ej: nombre@dominio.com).";
+  }
+
+  if (!datos.etiqueta.trim()) {
+    errores.etiqueta = "La etiqueta es obligatoria.";
+  }
+
+  return errores;
+}
+
 export default function App() {
   const [contactos, setContactos] = useState([]);
 
@@ -20,6 +63,7 @@ export default function App() {
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
   const [enviando, setEnviando] = useState(false);
+  const [errores, setErrores] = useState({});
 
   // Trae los contactos desde json-server al montar el componente
   useEffect(() => {
@@ -102,17 +146,36 @@ export default function App() {
       ...form,
       [name]: value,
     });
+
+    // Si el campo tenía un error mostrado, lo quitamos al empezar a corregirlo
+    if (errores[name]) {
+      setErrores((prev) => {
+        const copia = { ...prev };
+        delete copia[name];
+        return copia;
+      });
+    }
   }
 
   async function enviarFormulario(evento) {
     evento.preventDefault();
 
-    if (!form.nombre.trim() || !form.telefono.trim()) {
-      setError("Nombre y teléfono son obligatorios.");
+    const erroresEncontrados = validarFormulario(form);
+
+    if (Object.keys(erroresEncontrados).length > 0) {
+      setErrores(erroresEncontrados);
       return;
     }
 
-    await guardarContacto(form);
+    setErrores({});
+
+    // Enviamos los datos ya "limpios" (sin espacios sobrantes)
+    await guardarContacto({
+      nombre: form.nombre.trim(),
+      telefono: form.telefono.trim(),
+      correo: form.correo.trim(),
+      etiqueta: form.etiqueta.trim(),
+    });
 
     setForm({
       nombre: "",
@@ -146,6 +209,7 @@ export default function App() {
               onSubmit={enviarFormulario}
               totalContactos={contactos.length}
               enviando={enviando}
+              errores={errores}
             />
 
           </div>
