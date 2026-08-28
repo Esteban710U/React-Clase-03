@@ -60,6 +60,7 @@ export default function App() {
   });
 
   const [buscar, setBuscar] = useState("");
+  const [ordenAsc, setOrdenAsc] = useState(true);//filtro A-Z
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
   const [enviando, setEnviando] = useState(false);
@@ -189,6 +190,20 @@ export default function App() {
     c.nombre.toLowerCase().includes(buscar.toLowerCase())
   );
 
+  //Filtro A-Z
+  const contactosOrdenados = [...contactosFiltrados].sort((a, b) => {
+  const nombreA = a.nombre.toLowerCase();
+  const nombreB = b.nombre.toLowerCase();
+
+  if (nombreA < nombreB) return ordenAsc ? -1 : 1;
+  if (nombreA > nombreB) return ordenAsc ? 1 : -1;
+
+  return 0;
+});
+
+
+//Acaba
+
   return (
     <main className="min-h-screen bg-slate-100">
 
@@ -239,6 +254,12 @@ export default function App() {
                   onChange={(e) => setBuscar(e.target.value)}
                   className="w-full md:w-80 rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition"
                 />
+                <button
+                  type="button"
+                  onClick={() => setOrdenAsc((prev) => !prev)}
+>
+                  {ordenAsc ? "Ordenar Z-A" : "Ordenar A-Z"}
+                </button>
 
               </div>
 
@@ -272,7 +293,7 @@ export default function App() {
 
                 ) : (
 
-                  contactosFiltrados.map((c) => (
+                  contactosOrdenados.map((c) => (
 
                     <ContactoCard
                       key={c.id}
@@ -300,4 +321,4 @@ export default function App() {
 
     </main>
   );
-}//hola mundo
+}
